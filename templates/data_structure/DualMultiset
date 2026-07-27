@@ -1,0 +1,66 @@
+/*
+ * 对顶多重集合模板
+ * 常用于解决区间求中位数的题目
+ * 默认从小到大排序，左集合存较小的一半，右集合存较大的一半
+ * 始终保持左集合大小 = (总元素数 + 1) / 2
+**/
+
+template <typename T, typename Compare = std::less<T>>
+struct DualMultiset {
+  std::multiset<T, Compare> L;
+  std::multiset<T, Compare> R;
+  Compare comp;
+
+  // 平衡两个集合，保证 L.size() == (total + 1) / 2
+  void balance() {
+    std::size_t total = L.size() + R.size();
+    while (L.size() > (total + 1) / 2) {
+      auto it = std::prev(L.end());
+      R.insert(*it);
+      L.erase(it);
+    }
+    while (L.size() < (total + 1) / 2 && !R.empty()) {
+      auto it = R.begin();
+      L.insert(*it);
+      R.erase(it);
+    }
+  }
+
+  // 插入元素
+  void insert(const T& x) {
+    if (L.empty() || !comp(*std::prev(L.end()), x)) {
+      L.insert(x);
+    } else {
+      R.insert(x);
+    }
+    balance();
+  }
+
+  // 删除一个元素，必须保证元素存在
+  void erase(const T& x) {
+    auto it = L.find(x);
+    if (it != L.end()) {
+      L.erase(it);
+    } else {
+      auto it2 = R.find(x);
+      assert(it2 != R.end());
+      R.erase(it2);
+    }
+    balance();
+  }
+
+  // 获取中位数
+  const T& median() const {
+    assert(!L.empty());
+    return *std::prev(L.end());
+  }
+
+  // 总元素个数
+  std::size_t size() const {
+    return L.size() + R.size();
+  }
+
+  bool empty() const {
+    return size() == 0;
+  }
+};
