@@ -49,10 +49,21 @@ struct DualMultiset {
     balance();
   }
 
-  // 获取中位数
-  const T& median() const {
+  // 返回左中位数
+  const T& median_left() const {
     assert(!L.empty());
     return *std::prev(L.end());
+  }
+
+  // 返回右中位数
+  const T& median_right() const {
+    assert(!R.empty());
+    return *R.begin();
+  }
+
+  // 为兼容奇数场景保留 median() 接口，直接返回左中位数
+  const T& median() const {
+    return median_left();
   }
 
   // 总元素个数
