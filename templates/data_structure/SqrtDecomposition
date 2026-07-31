@@ -1,0 +1,49 @@
+/*
+ *  分块（平方分割）
+ *  适用于区间加减，单点查询且一般查询量较大的情形
+ *  查询O(1)，修改O(sqrt(n))
+**/
+template<typename T>
+struct SqrtDecomposition {
+  int n;
+  int B;
+  std::vector<T> a;
+  std::vector<T> tag;
+  std::vector<int> at;
+
+  SqrtDecomposition(const std::vector<T>& init) {
+    n = init.size() - 1;
+    B = std::max(1, static_cast<int>(std::sqrt(n)));
+    a = init;
+
+    tag.assign(n / B + 2, 0);
+    at.resize(n + 1);
+    for (int i = 1; i <= n; i++) {
+      at[i] = (i - 1) / B + 1;
+    }
+  }
+
+  template<typename U>
+  void modify(int l, int r, U x) {
+    int L = at[l], R = at[r];
+    if (L == R) {
+      for (int i = l; i <= r; i++) {
+        a[i] += x;
+      }
+      return;
+    }
+    for (int i = l; at[i] == L; i++) {
+      a[i] += x;
+    }
+    for (int b = L + 1; b < R; b++) {
+      tag[b] += x;
+    }
+    for (int i = r; at[i] == R; i--) {
+      a[i] += x;
+    }
+  }
+
+  T query(int idx) {
+    return a[idx] + tag[at[idx]];
+  }
+};
