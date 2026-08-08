@@ -1,0 +1,28 @@
+/*  pbds万能头
+<bits/extc++.h>
+牛客、codeforces、atcoder、洛谷、HDU、BZOJ、vijos、loj都是支持的，POJ不支持
+*/
+// #include<bits/extc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/hash_policy.hpp>
+
+// 以下 T1,T2 代表两种类型。
+// gp 探查法解决哈希冲突，更快，一般我们都用这个，下文的哈希表也都指这个。
+// __gnu_pbds::gp_hash_table <T1, T2> H1;
+// cc 拉链法解决哈希冲突，较慢，比 unordered_map 还慢。
+// __gnu_pbds::cc_hash_table <T1, T2> H2;
+// 速度比较：gp_hash_table > unordered_map > cc_hash_table
+
+template<class T1, class T2>
+using hash_map = __gnu_pbds::gp_hash_table<T1, T2>;
+//直接当没有 emplace(),cbegin(),cend() 的 unordered_map 用就好了。
+
+template<class T1, class T2>
+struct std::tr1::hash<std::pair<T1, T2>> {
+  std::size_t operator()(std::pair<T1, T2> x) const {
+    std::tr1::hash<T1> h1;
+    std::tr1::hash<T2> h2;
+    return h1(x.first) ^ h2(x.second); // 自定义hash函数
+  }
+};
+// 于是可以直接使用类似hash_map<std::pair<int, int>, int> mp;的写法了
