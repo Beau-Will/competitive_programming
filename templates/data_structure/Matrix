@@ -1,3 +1,14 @@
+/*
+ *  Matrix 模板类
+ *  用于解决矩阵相关问题，支持加减乘、快速幂、带模的运算等
+**/
+
+// #include <vector>
+// #include <tuple>
+// #include <cassert>
+// #include <initializer_list>
+// #include <cmath>
+
 template<typename T>
 struct Matrix {
   int n, m;
@@ -59,13 +70,9 @@ struct Matrix {
     return res;
   }
 
-  // 一元正号：所有元素取绝对值
+  // 一元正号：直接返回当前矩阵
   Matrix operator+() const {
-    Matrix res(n, m);
-    for (int i = 0; i < n; ++i)
-      for (int j = 0; j < m; ++j)
-        res(i, j) = std::abs(a[i][j]);
-    return res;
+    return *this;
   }
 
   // 一元负号：所有元素取相反数
@@ -88,20 +95,10 @@ struct Matrix {
     return res;
   }
 
-  // add / sub / mul 复用对应运算符
-  Matrix add(const Matrix& b) const {
-    return *this + b;
-  }
-  Matrix sub(const Matrix& b) const {
-    return *this - b;
-  }
-  Matrix mul(const Matrix& b) const {
-    return *this * b;
-  }
-
   // 快速幂 ^
   template<typename U>
   Matrix operator^(U b) const {
+    assert(b >= U(0));
     assert(n == m);
     Matrix res(n, n);
     for (int i = 0; i < n; ++i)
@@ -116,8 +113,80 @@ struct Matrix {
     return res;
   }
 
+  // add, sub, mul 复用对应运算符
+  Matrix add(const Matrix& b) const {
+    return *this + b;
+  }
+  Matrix sub(const Matrix& b) const {
+    return *this - b;
+  }
+  Matrix mul(const Matrix& b) const {
+    return *this * b;
+  }
+  // power 复用快速幂运算符 ^
   template<typename U>
   Matrix power(U b) const {
     return *this ^ b;
+  }
+
+  // 带取模的加法
+  template<typename U>
+  Matrix add(const Matrix& b, U mod) const {
+    assert(n == b.n && m == b.m);
+    Matrix res(n, m);
+    for (int i = 0; i < n; ++i)
+      for (int j = 0; j < m; ++j)
+        res(i, j) = T((__int128(a[i][j]) + __int128(b(i, j))) % mod);
+    return res;
+  }
+
+  // 带取模的减法
+  template<typename U>
+  Matrix sub(const Matrix& b, U mod) const {
+    assert(n == b.n && m == b.m);
+    Matrix res(n, m);
+    for (int i = 0; i < n; ++i)
+      for (int j = 0; j < m; ++j)
+        res(i, j) = T((__int128(a[i][j]) - __int128(b(i, j)) + mod) % mod);
+    return res;
+  }
+
+  // 带取模的乘法
+  template<typename U>
+  Matrix mul(const Matrix& b, U mod) const {
+    assert(m == b.n);
+    Matrix res(n, b.m);
+    for (int i = 0; i < n; ++i)
+      for (int k = 0; k < m; ++k)
+        for (int j = 0; j < b.m; ++j)
+          res(i, j) = T((res(i, j) + __int128(a[i][k]) * b(k, j) % mod) % mod);
+    return res;
+  }
+
+  // 带取模的快速幂
+  template<typename U, typename V>
+  Matrix power(U b, V mod) const {
+    assert(b >= U(0));
+    assert(n == m);
+    Matrix res(n, n);
+    for (int i = 0; i < n; ++i)
+      res(i, i) = (T)(1 % mod);
+    Matrix base = *this;
+    while (b > U(0)) {
+      if (b % U(2) == U(1))
+        res = res.mul(base, mod);
+      base = base.mul(base, mod);
+      b /= U(2);
+    }
+    return res;
+  }
+
+  // 取绝对值
+  Matrix abs() const {
+    Matrix res(n, m);
+    for (int i = 0; i < n; ++i)
+      for (int j = 0; j < m; ++j)
+        res(i, j) = std::abs(a[i][j]);
+    return res;
   }
 };
