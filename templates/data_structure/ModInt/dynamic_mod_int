@@ -144,9 +144,9 @@ struct ModIntBase {
   friend constexpr bool operator==(const ModIntBase& lhs, const ModIntBase& rhs) {
     return lhs.val() == rhs.val();
   }
-  friend constexpr std::strong_ordering operator<= > (const ModIntBase& lhs,
+  friend constexpr std::strong_ordering operator<=> (const ModIntBase& lhs,
       const ModIntBase& rhs) {
-    return lhs.val() <= > rhs.val();
+    return lhs.val() <=> rhs.val();
   }
 
  private:
@@ -276,9 +276,9 @@ struct DynModInt {
   friend constexpr bool operator==(const DynModInt& lhs, const DynModInt& rhs) {
     return lhs.val() == rhs.val();
   }
-  friend constexpr std::strong_ordering operator<= > (const DynModInt& lhs,
+  friend constexpr std::strong_ordering operator<=> (const DynModInt& lhs,
       const DynModInt& rhs) {
-    return lhs.val() <= > rhs.val();
+    return lhs.val() <=> rhs.val();
   }
 
  private:
