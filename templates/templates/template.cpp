@@ -14,9 +14,6 @@ constexpr double eps = 1E-10;
 // constexpr double pi = std::numbers::pi;
 // constexpr double e = std::numbers::e;
 
-// constexpr int int_max = std::numeric_limits<int>::max();
-// constexpr i64 i64_max = std::numeric_limits<i64>::max();
-
 void solve(){
   
 }
