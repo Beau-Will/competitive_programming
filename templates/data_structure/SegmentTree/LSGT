@@ -295,7 +295,7 @@ struct LazySegmentTree {
     }
     int m = (l + r) / 2;
     push(p);
-    return rangeQuery(p * 2, l, m, x, y) + rangeQuery(p * 2 + 1, m + 1, r, x, y);  // 修改：右子区间从m+1开始
+    return rangeQuery(p * 2, l, m, x, y) + rangeQuery(p * 2 + 1, m + 1, r, x, y);
   }
   Info rangeQuery(int l, int r) {
     return rangeQuery(1, 1, n, l, r);
