@@ -19,6 +19,9 @@ struct DSU {
   bool same(int x, int y) {
     return find(x) == find(y);
   }
+  int operator[](int x) {
+    return find(x);
+  }
   bool merge(int x, int y) {
     int fx = find(x);
     int fy = find(y);
