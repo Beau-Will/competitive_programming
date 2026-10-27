@@ -1,0 +1,83 @@
+struct SCC {
+  int cnt = 0;
+  std::vector<int> bel;
+
+  explicit SCC(const std::vector<std::vector<int>>& adj)
+      : bel(adj.size()) {
+    int n = adj.size() - 1;
+    int timer = 0;
+    std::vector<int> dfn(n + 1), low(n + 1), stk;
+    std::vector<char> in_stk(n + 1, false);
+    stk.reserve(n);
+
+    auto tarjan = [&](auto&& self, int u) -> void {
+      dfn[u] = low[u] = ++timer;
+      stk.push_back(u);
+      in_stk[u] = true;
+
+      for (int v : adj[u]) {
+        if (!dfn[v]) {
+          self(self, v);
+          low[u] = std::min(low[u], low[v]);
+        } else if (in_stk[v]) {
+          low[u] = std::min(low[u], dfn[v]);
+        }
+      }
+
+      if (low[u] == dfn[u]) {
+        cnt++;
+        while (true) {
+          int v = stk.back();
+          stk.pop_back();
+          in_stk[v] = false;
+          bel[v] = cnt;
+          if (v == u) break;
+        }
+      }
+    };
+
+    for (int i = 1; i <= n; i++) {
+      if (!dfn[i]) tarjan(tarjan, i);
+    }
+  }
+
+  std::vector<std::vector<int>> build_dag(const std::vector<std::vector<int>> adj) const {
+    int n = adj.size() - 1;
+    std::vector<std::vector<int>> dag(cnt + 1);
+
+    for (int u = 1; u <= n; u++) {
+      for (const auto& v : adj[u]) {
+        int bu = bel[u], bv = bel[v];
+        if (bu != bv) dag[bu].push_back(bv);
+      }
+    }
+
+    for (int i = 1; i <= n; i++) {
+      std::sort(dag[i].begin(), dag[i].end());
+      dag[i].erase(std::unique(dag[i].begin(), dag[i].end()), dag[i].end());
+    }
+
+    return dag;
+  }
+
+  std::vector<int> scc_size() const {
+    int n = bel.size() - 1;
+    std::vector<int> res(cnt + 1);
+    for (int i = 1; i <= n; i++) res[bel[i]]++;
+    return res;
+  }
+
+  std::vector<int> in_degree(const std::vector<std::vector<int>>& dag) const {
+    std::vector<int> in(cnt + 1);
+    for (int i = 1; i <= cnt; i++) {
+      for (const auto& j : dag[i]) in[j]++;
+    }
+    return in;
+  }
+
+  std::vector<int> out_degree(const std::vector<std::vector<int>>& dag) const {
+    std::vector<int> out(cnt + 1);
+    for (int i = 1; i <= cnt; i++) out[i] = dag[i].size();
+    return out;
+  }
+};
