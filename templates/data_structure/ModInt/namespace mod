@@ -1,0 +1,62 @@
+namespace mod {
+// add、sub、mul 要求 0 <= a, b < p；power 要求 0 <= a < p、b >= 0。
+// 模数 p 为正整数；inv、div 要求 p > 1 且逆元存在，div 还要求 0 <= a < p。
+int add(int a, int b, int p = P) {
+  if ((a += b) >= p) a -= p;
+  return a;
+}
+
+int sub(int a, int b, int p = P) {
+  if ((a -= b) < 0) a += p;
+  return a;
+}
+
+int mul(int a, int b, int p = P) {
+  return 1LL * a * b % p;
+}
+
+int power(int a, int b, int p = P) {
+  int res = 1 % p;
+  for (; b; b >>= 1, a = mul(a, a, p)) if (b & 1) res = mul(res, a, p);
+  return res;
+}
+
+constexpr bool isprime(int x) {
+  if (x < 2) return false;
+  for (int i = 2; i <= x / i; i++) if (x % i == 0) return false;
+  return true;
+}
+
+/*
+ * 函数模板 exgcd
+ * 返回 {gcd(a, b), x, y}，满足 a * x + b * y = gcd(a, b)
+ * 支持 int、i64 等有符号整数类型，要求 a、b 非负且中间运算不溢出
+ */
+template<typename T>
+constexpr std::array<T, 3> exgcd(T a, T b) {
+  if (b == 0) return {a, 1, 0};
+  auto [d, x, y] = exgcd(b, a % b);
+  return {d, y, x - (a / b) * y};
+}
+
+template<int p = P>
+int inv(int a) {
+  static_assert(p > 1);
+  a %= p;
+  if (a < 0) a += p;
+
+  if constexpr (isprime(p)) {
+    assert(a != 0);
+    return power(a, p - 2, p);
+  } else {
+    auto [d, x, y] = exgcd<i64>(a, p);
+    assert(d == 1);
+    return static_cast<int>((x % p + p) % p);
+  }
+}
+
+template<int p = P>
+int div(int a, int b) {
+  return mul(a, inv<p>(b), p);
+}
+} // end of namespace mod
